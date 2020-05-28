@@ -1,0 +1,6 @@
+[submodule "native/third_party/minizip"]
+	path = native/third_party/minizip
+	url = https://github.com/nmoinvaz/minizip.git
+[submodule "native/third_party/fmt"]
+	path = native/third_party/fmt
+	url = https://github.com/fmtlib/fmt.git

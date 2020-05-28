@@ -1,0 +1,31 @@
+{
+  "name": "nzip",
+  "version": "1.0.0",
+  "description": "Minizip wrapper for node.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest -i",
+    "build": "cd native && cmake-js compile",
+    "prebuild": "prebuild -t 3 -r napi --backend cmake-js -p native",
+    "debug": "cd native && cmake-js rebuild --debug"
+  },
+  "keywords": [
+    "minizip",
+    "zip",
+    "node"
+  ],
+  "binary": {
+    "napi_versions": [3]
+  },
+  "author": "jyd519",
+  "license": "ISC",
+  "dependencies": {
+    "cmake-js": "^6.1.0"
+  },
+  "devDependencies": {
+    "bindings": "^1.5.0",
+    "jest": "^26.0.1",
+    "node-addon-api": "^3.0.0",
+    "rimraf": "^3.0.2"
+  }
+}

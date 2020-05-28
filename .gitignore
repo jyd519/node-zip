@@ -1,0 +1,7 @@
+native/build
+node_modules/
+native/.clangd/
+native/.ccls-cache/
+temp/ tests/temp/
+native/.vscode
+tests/temp
