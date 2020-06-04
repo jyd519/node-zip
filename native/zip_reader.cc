@@ -9,7 +9,7 @@ namespace ziputil {
 
 using namespace fs_util;
 
-ZipReader::ZipReader(const std::string& filename) { open(filename, ""); }
+ZipReader::ZipReader(const std::string &filename) { open(filename, ""); }
 
 ZipReader::~ZipReader() { close(); }
 
@@ -20,8 +20,8 @@ void ZipReader::close() {
   }
 }
 
-bool ZipReader::open(const std::string& filename, const std::string& password) {
-  mz_zip_file* file_info = NULL;
+bool ZipReader::open(const std::string &filename, const std::string &password) {
+  mz_zip_file *file_info = NULL;
   int32_t err = MZ_OK;
   std::vector<ZipEntry> files;
 
@@ -67,17 +67,17 @@ bool ZipReader::open(const std::string& filename, const std::string& password) {
     }
   } while (err == MZ_OK);
 
-  if (err != MZ_END_OF_LIST) throw ZipException(err, "read entry info failed");
-
+  if (err != MZ_END_OF_LIST)
+    throw ZipException(err, "read entry info failed");
 
   entries_ = std::move(files);
   is_open_ = true;
   return true;
 }
 
-bool ZipReader::exists(const std::string& filename) {
-  return std::find_if(std::cbegin(entries_), std::cend(entries_), [&](auto& e) {
-           return e.name == filename;
+bool ZipReader::exists(const std::string &filename) {
+  return std::find_if(std::cbegin(entries_), std::cend(entries_), [&](auto &e) {
+           return e.name.size() == filename.size() && mz_zip_path_compare(e.name.c_str(), filename.c_str(), 1) == 0;
          }) != entries_.end();
 }
 
@@ -86,16 +86,16 @@ void ZipReader::setPassword(std::string password) {
   mz_zip_reader_set_password(reader_, password_.c_str());
 }
 
-bool ZipReader::extractTo(const std::string& filename,
-                          const std::string& outDir) {
+bool ZipReader::extractTo(const std::string &filename,
+                          const std::string &outDir) {
   return extractAs(filename, fs_util::join(outDir, filename));
 }
 
-size_t ZipReader::extractAll(const std::string& outDir,
-                             const std::string& pattern) {
+size_t ZipReader::extractAll(const std::string &outDir,
+                             const std::string &pattern) {
   size_t cnt = 0;
-  std::for_each(entries_.cbegin(), entries_.cend(), [&](auto& p) {
-    if (pattern.empty() || 
+  std::for_each(entries_.cbegin(), entries_.cend(), [&](auto &p) {
+    if (pattern.empty() ||
         mz_path_compare_wc(p.name.c_str(), pattern.c_str(), 1) == 0) {
       if (extractTo(p.name, outDir)) {
         ++cnt;
@@ -105,8 +105,8 @@ size_t ZipReader::extractAll(const std::string& outDir,
   return cnt;
 }
 
-bool ZipReader::extractAs(const std::string& filename,
-                          const std::string& newname) {
+bool ZipReader::extractAs(const std::string &filename,
+                          const std::string &newname) {
   int err = mz_zip_reader_locate_entry(reader_, filename.c_str(), 0);
   if (err == MZ_END_OF_LIST) {
     return false;
@@ -122,7 +122,7 @@ bool ZipReader::extractAs(const std::string& filename,
   return true;
 }
 
-bool ZipReader::readFile(const std::string& filename, std::string& data) {
+bool ZipReader::readFile(const std::string &filename, std::string &data) {
   mz_zip_reader_set_password(reader_, password_.c_str());
   int err = mz_zip_reader_locate_entry(reader_, filename.c_str(), 0);
   if (err == MZ_END_OF_LIST) {
@@ -132,7 +132,7 @@ bool ZipReader::readFile(const std::string& filename, std::string& data) {
     throw ZipException(err, "entry not found");
   }
 
-  mz_zip_file* file_info = NULL;
+  mz_zip_file *file_info = NULL;
   err = mz_zip_reader_entry_get_info(reader_, &file_info);
   if (err != MZ_OK) {
     throw ZipException(err, "read entry info failed");

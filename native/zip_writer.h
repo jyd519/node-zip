@@ -24,10 +24,11 @@ class ZipWriter {
  public:
   ZipWriter() = default;
   ZipWriter(const std::string& filename, const std::string& password);
-  ~ZipWriter();
+  ~ZipWriter() = default;
 
   ZipWriter(const ZipWriter&) = delete;
   ZipWriter& operator=(const ZipWriter&) = delete;
+
 
   bool create(const std::string& filename, const std::string& password);
   bool close();

@@ -5,8 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "jest -i",
-    "build": "cd native && cmake-js compile",
-    "prebuild": "prebuild -t 3 -r napi --backend cmake-js -p native",
+    "compile": "cd native && cmake-js compile",
+    "x64": "cd native && cmake-js rebuild",
+    "ia32": "cd native && cmake-js rebuild -a ia32 -O ia32build",
+    "pre-release": "prebuild -t 3 -r napi --backend cmake-js -p native",
     "debug": "cd native && cmake-js rebuild --debug"
   },
   "keywords": [
@@ -15,7 +17,9 @@
     "node"
   ],
   "binary": {
-    "napi_versions": [3]
+    "napi_versions": [
+      3
+    ]
   },
   "author": "jyd519",
   "license": "ISC",

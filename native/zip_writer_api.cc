@@ -1,5 +1,4 @@
 #include "zip_writer_api.h"
-#include <__bit_reference>
 
 #include "async_op.h"
 #include "napi.h"

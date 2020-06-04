@@ -8,6 +8,7 @@ test("test create", async () => {
 });
 
 test("test addDir", async () => {
+    jest.setTimeout(10000);
     const zipf = './tests/temp/new1.zip';
     const z = await zip.create(zipf, "123");
     let ok = await z.addDir("native/third_party/minizip");
@@ -17,7 +18,7 @@ test("test addDir", async () => {
     const r = await zip.open(zipf, "123");
     expect(r.exists('native/third_party/minizip/README.md')).toBe(true);
     r.close();
-});
+}, 10000);
 
 test("test addDir with root", async () => {
     const z = await zip.create("./tests/temp/new2.zip", "123");

@@ -1,8 +1,24 @@
 cmake_minimum_required(VERSION 3.10)
-cmake_policy(SET CMP0042 NEW)
-set(CMAKE_CXX_STANDARD 14)
 
-project(node-zip)
+if(DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+  message("Bootstrapping vcpkg in $ENV{VCPKG_ROOT} : ${NODE_ARCH}")
+  if (${NODE_ARCH} STREQUAL "x64")
+    set(VCPKG_TARGET_TRIPLET "x64-windows-static")
+    set(VCPKG_TARGET_TRIPLET "x64-windows-static")
+  else()
+    set(VCPKG_TARGET_TRIPLET "x86-windows-static")
+  endif()
+  set(CMAKE_PREFIX_PATH $ENV{VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET})
+  set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
+endif()
+
+cmake_policy(SET CMP0042 NEW)
+cmake_policy(SET CMP0091 NEW)
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+project(mzip)
 
 if (WIN32)
   add_compile_definitions(_WIN32_WINNT=0x600 _WIN32_WINDOWS=0x600 _UNICODE UNICODE)
@@ -14,7 +30,8 @@ file(GLOB SOURCE_FILES "*.cc")
 
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${CMAKE_JS_SRC})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
-target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${CMAKE_JS_LIB})
+
 # define NPI_VERSION
 target_compile_definitions(${PROJECT_NAME} PRIVATE NAPI_VERSIO=3)
 
