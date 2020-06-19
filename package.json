@@ -1,6 +1,6 @@
 {
   "name": "@jyd119/mzip",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Minizip wrapper for node.js",
   "main": "index.js",
   "publishConfig": {
@@ -37,13 +37,14 @@
   },
   "author": "jyd519",
   "license": "ISC",
-  "dependencies": {},
+  "dependencies": {
+    "bindings": "^1.5.0",
+    "prebuild-install": "^5.3.4"
+  },
   "devDependencies": {
     "cmake-js": "^6.1.0",
-    "bindings": "^1.5.0",
     "jest": "^26.0.1",
     "node-addon-api": "^3.0.0",
-    "prebuild-install": "^5.3.4",
     "rimraf": "^3.0.2"
   }
 }
