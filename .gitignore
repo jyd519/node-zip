@@ -5,3 +5,4 @@ native/.ccls-cache/
 temp/ tests/temp/
 native/.vscode
 tests/temp
+native/prebuilds/

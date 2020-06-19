@@ -1,4 +1,1 @@
-module.exports = require('bindings')({
-    module_root: `${__dirname}/native`,
-    bindings: 'mzip'
-});
+module.exports = require('bindings')({ bindings: 'mzip' });

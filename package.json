@@ -1,16 +1,30 @@
 {
-  "name": "nzip",
+  "name": "@jyd119/mzip",
   "version": "1.0.0",
   "description": "Minizip wrapper for node.js",
   "main": "index.js",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jyd519/node-zip.git"
+  },
   "scripts": {
     "test": "jest -i",
     "compile": "cd native && cmake-js compile",
     "x64": "cd native && cmake-js rebuild",
     "ia32": "cd native && cmake-js rebuild -a ia32 -O ia32build",
-    "pre-release": "prebuild -t 3 -r napi --backend cmake-js -p native",
+    "prebuild": "prebuild -t 3 -r napi --backend cmake-js -p native  --strip --verbose",
+    "upload": "prebuild --runtime napi -p native --upload ${GITHUB_TOKEN}",
+    "install": "prebuild-install --runtime napi -t 3 --force",
     "debug": "cd native && cmake-js rebuild --debug"
   },
+  "files": [
+    "index.js",
+    "tests",
+    "*.md"
+  ],
   "keywords": [
     "minizip",
     "zip",
@@ -23,13 +37,13 @@
   },
   "author": "jyd519",
   "license": "ISC",
-  "dependencies": {
-    "cmake-js": "^6.1.0"
-  },
+  "dependencies": {},
   "devDependencies": {
+    "cmake-js": "^6.1.0",
     "bindings": "^1.5.0",
     "jest": "^26.0.1",
     "node-addon-api": "^3.0.0",
+    "prebuild-install": "^5.3.4",
     "rimraf": "^3.0.2"
   }
 }
