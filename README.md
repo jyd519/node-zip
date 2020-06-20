@@ -11,7 +11,9 @@ node-zip is a node addon binding [Minizip](http://www.winimage.com/zLibDll/miniz
 ### Reading zip file 
 
 ```javascript
-const r = await zip.open('./tests/test.zip');
+const mzip = require('@jyd119/mzip');
+
+const r = await mzip.open('./tests/test.zip');
 
 r.exists('yargs/index.js');  // true
 
@@ -32,7 +34,9 @@ r.close();
 ### Writing zip file
 
 ```javascript
-const w = await zip.create("new-file.zip", "123");
+const mzip = require('@jyd119/mzip');
+
+const w = await mzip.create("new-file.zip", "123");
 await w.addFile("package.json");
 await w.addFile("index.js", "new-name-in-zip.js");
 
