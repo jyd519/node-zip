@@ -97,7 +97,7 @@ size_t ZipReader::extractAll(const std::string &outDir,
   std::for_each(entries_.cbegin(), entries_.cend(), [&](auto &p) {
     if (pattern.empty() ||
         mz_path_compare_wc(p.name.c_str(), pattern.c_str(), 1) == 0) {
-      if (extractTo(p.name, outDir)) {
+      if (this->extractTo(p.name, outDir)) {
         ++cnt;
       }
     }

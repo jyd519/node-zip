@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <string>
+#include <string.h>
 #include <algorithm>
 
 size_t strlcpy(char *dst, const char *src, size_t siz);
