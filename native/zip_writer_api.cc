@@ -10,9 +10,10 @@ using namespace ziputil;
 
 class CreateZipAsync : public Napi::AsyncWorker {
  public:
-  CreateZipAsync(Napi::Env env, std::string filename, std::string password)
+  CreateZipAsync(Napi::Env env, std::string filename, std::string password, AddonData* addon_data)
       : Napi::AsyncWorker(env),
         deferred(Napi::Promise::Deferred::New(env)),
+        addon_data_(addon_data),
         filename_(std::move(filename)),
         password_(std::move(password)) {}
   ~CreateZipAsync() {}
@@ -32,7 +33,7 @@ class CreateZipAsync : public Napi::AsyncWorker {
   void OnOK() override {
     Napi::HandleScope scope(Env());
     auto exp = Napi::External<ZipWriter>::New(Env(), this->w_.release());
-    auto wrapper = ZipWriterAPI::NewInstance(Env(), {exp});
+    auto wrapper = ZipWriterAPI::NewInstance(Env(), {exp}, addon_data_);
     deferred.Resolve(wrapper);
   }
 
@@ -44,13 +45,13 @@ class CreateZipAsync : public Napi::AsyncWorker {
   std::unique_ptr<ZipWriter> w_;
 
  private:
+  AddonData* addon_data_;
   std::string filename_;
   std::string password_;
 };
 
 Napi::Value CreateZip(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-
   if (info.Length() < 1) {
     Napi::TypeError::New(env, "Wrong number of arguments")
         .ThrowAsJavaScriptException();
@@ -71,7 +72,8 @@ Napi::Value CreateZip(const Napi::CallbackInfo& info) {
     password = info[1].ToString();
   }
 
-  auto* wk = new CreateZipAsync(info.Env(), info[0].ToString(), password);
+  auto addon_data = (AddonData*)info.Data();
+  auto* wk = new CreateZipAsync(info.Env(), info[0].ToString(), password, addon_data);
   wk->Queue();
   return wk->deferred.Promise();
 }
@@ -83,7 +85,7 @@ Napi::Object ZipWriterAPI::Init(Napi::Env env, Napi::Object exports, AddonData* 
   Napi::HandleScope scope(env);
 
   exports.Set(Napi::String::New(env, "create"),
-              Napi::Function::New(env, CreateZip));
+              Napi::Function::New(env, CreateZip, "createZip", addon_data));
 
   Napi::Function func =
       DefineClass(env, "ZipWriter",
@@ -96,9 +98,12 @@ Napi::Object ZipWriterAPI::Init(Napi::Env env, Napi::Object exports, AddonData* 
   return exports;
 }
 
-Napi::Object ZipWriterAPI::NewInstance(Napi::Env env, Napi::Value arg) {
+Napi::Object ZipWriterAPI::NewInstance(Napi::Env env, Napi::Value arg, AddonData* addon_data) {
   Napi::EscapableHandleScope scope(env);
-  auto addon_data = env.GetInstanceData<AddonData>();
+
+#if NAPI_VERSION > 5  
+  // auto addon_data = env.GetInstanceData<AddonData>();
+#endif
   auto obj = addon_data->ctor_writer.New({arg});
   return scope.Escape(napi_value(obj)).ToObject();
 }

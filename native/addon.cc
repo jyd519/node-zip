@@ -11,7 +11,12 @@
 // of the addon for as long as the JavaScript engine keeps it alive.
 static AddonData* CreateAddonData(Napi::Env env, napi_value /* exports */) {
   AddonData* result = new AddonData();
+#if NAPI_VERSION > 5  
   env.SetInstanceData(result);
+#else
+  auto terminate = [](void* data) { delete reinterpret_cast<AddonData*>(data); };
+  napi_add_env_cleanup_hook(env, terminate, result);
+#endif
   return result;
 }
 

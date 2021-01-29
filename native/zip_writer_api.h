@@ -13,7 +13,7 @@ namespace api {
 class ZipWriterAPI : public Napi::ObjectWrap<ZipWriterAPI> {
  public:
   static Napi::Object Init(Napi::Env env, Napi::Object exports, AddonData* addon_data);
-  static Napi::Object NewInstance(Napi::Env env, Napi::Value arg);
+  static Napi::Object NewInstance(Napi::Env env, Napi::Value arg, AddonData* addon_data);
 
   ZipWriterAPI(const Napi::CallbackInfo& info);
 

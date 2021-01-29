@@ -35,7 +35,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
 target_link_libraries(${PROJECT_NAME} PRIVATE ${CMAKE_JS_LIB})
 
 # define NPI_VERSION
-target_compile_definitions(${PROJECT_NAME} PRIVATE NAPI_VERSION=6)
+target_compile_definitions(${PROJECT_NAME} PRIVATE NAPI_VERSION=3)
 
 # Include N-API wrappers
 execute_process(COMMAND node -p "require('node-addon-api').include"

@@ -17,9 +17,10 @@ using namespace ziputil;
 
 class OpenZipAsync : public Napi::AsyncWorker {
  public:
-  OpenZipAsync(Napi::Env env, std::string filename, std::string password)
+  OpenZipAsync(Napi::Env env, std::string filename, std::string password, AddonData* addon_data)
       : Napi::AsyncWorker(env),
         deferred(Napi::Promise::Deferred::New(env)),
+        addon_data_(addon_data),
         filename_(std::move(filename)),
         password_(std::move(password)) {}
   ~OpenZipAsync() {}
@@ -39,7 +40,7 @@ class OpenZipAsync : public Napi::AsyncWorker {
   void OnOK() override {
     Napi::HandleScope scope(Env());
     auto exp = Napi::External<ZipReader>::New(Env(), this->reader_.release());
-    auto wrapper = ZipReaderAPI::NewInstance(Env(), {exp});
+    auto wrapper = ZipReaderAPI::NewInstance(Env(), {exp}, addon_data_);
     deferred.Resolve(wrapper);
   }
 
@@ -51,6 +52,7 @@ class OpenZipAsync : public Napi::AsyncWorker {
   std::unique_ptr<ZipReader> reader_;
 
  private:
+  AddonData* addon_data_;
   std::string filename_;
   std::string password_;
 };
@@ -78,7 +80,8 @@ Napi::Value OpenZip(const Napi::CallbackInfo& info) {
     password = info[1].ToString();
   }
 
-  auto* wk = new OpenZipAsync(info.Env(), info[0].ToString(), password);
+  auto addon_data = (AddonData*)info.Data();
+  auto* wk = new OpenZipAsync(info.Env(), info[0].ToString(), password, addon_data);
   wk->Queue();
   return wk->deferred.Promise();
 }
@@ -91,7 +94,7 @@ Napi::Object ZipReaderAPI::Init(Napi::Env env, Napi::Object exports, AddonData* 
   Napi::HandleScope scope(env);
 
   exports.Set(Napi::String::New(env, "open"),
-              Napi::Function::New(env, OpenZip));
+              Napi::Function::New(env, OpenZip, "openZip", addon_data));
 
   Napi::Function func =
       DefineClass(env, "ZipReader",
@@ -117,7 +120,7 @@ Napi::Value ZipReaderAPI::setPassword(const Napi::CallbackInfo& info) {
 Napi::Value ZipReaderAPI::item(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   int idx = info[0].ToNumber();
-  if (idx < 0 || idx >= reader_->count()) {
+  if (idx < 0 || idx >= (int)reader_->count()) {
     Napi::TypeError::New(env, "Wrong number of arguments")
         .ThrowAsJavaScriptException();
     return env.Undefined();
@@ -245,9 +248,11 @@ ZipReaderAPI::ZipReaderAPI(const Napi::CallbackInfo& info)
   reader_.reset(info[0].As<Napi::External<ZipReader>>().Data());
 }
 
-Napi::Object ZipReaderAPI::NewInstance(Napi::Env env, Napi::Value arg) {
+Napi::Object ZipReaderAPI::NewInstance(Napi::Env env, Napi::Value arg, AddonData* addon_data) {
   Napi::EscapableHandleScope scope(env);
-  auto addon_data = env.GetInstanceData<AddonData>();
+#if NAPI_VERSION > 5  
+  // auto addon_data = env.GetInstanceData<AddonData>();
+#endif
   auto obj = addon_data->ctor_reader.New({arg});
   return scope.Escape(napi_value(obj)).ToObject();
 }
