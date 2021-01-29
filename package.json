@@ -16,7 +16,7 @@
     "x64": "cd native && cmake-js rebuild",
     "ia32": "cd native && cmake-js rebuild -a ia32 -O ia32build",
     "prebuild": "prebuild -t 3 -r napi --backend cmake-js -p native  --strip --verbose",
-    "upload": "prebuild --runtime napi -p native --upload ${GITHUB_TOKEN}",
+    "upload": "prebuild --runtime napi -p native --upload $npm_config_GITHUB_TOKEN",
     "install": "prebuild-install --runtime napi -t 3 --force",
     "debug": "cd native && cmake-js rebuild --debug"
   },
@@ -32,7 +32,7 @@
   ],
   "binary": {
     "napi_versions": [
-      3
+      6
     ]
   },
   "author": "jyd519",
@@ -44,7 +44,7 @@
   "devDependencies": {
     "cmake-js": "^6.1.0",
     "jest": "^26.0.1",
-    "node-addon-api": "^3.0.0",
+    "node-addon-api": "^3.1.0",
     "rimraf": "^3.0.2"
   }
 }

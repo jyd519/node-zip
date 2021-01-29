@@ -83,20 +83,15 @@ Napi::Value OpenZip(const Napi::CallbackInfo& info) {
   return wk->deferred.Promise();
 }
 
-Napi::Object InitReader(Napi::Env env, Napi::Object exports) {
-  exports.Set(Napi::String::New(env, "open"),
-              Napi::Function::New(env, OpenZip));
-  ZipReaderAPI::Init(env, exports);
-  return exports;
-}
-
 //
 // ZipReaderAPI
 //
-Napi::FunctionReference ZipReaderAPI::constructor;
 
-Napi::Object ZipReaderAPI::Init(Napi::Env env, Napi::Object exports) {
+Napi::Object ZipReaderAPI::Init(Napi::Env env, Napi::Object exports, AddonData* addon_data) {
   Napi::HandleScope scope(env);
+
+  exports.Set(Napi::String::New(env, "open"),
+              Napi::Function::New(env, OpenZip));
 
   Napi::Function func =
       DefineClass(env, "ZipReader",
@@ -106,10 +101,9 @@ Napi::Object ZipReaderAPI::Init(Napi::Env env, Napi::Object exports) {
                    InstanceMethod("read", &ZipReaderAPI::readFile),
                    InstanceMethod("exists", &ZipReaderAPI::exists),
                    InstanceAccessor("count", &ZipReaderAPI::count, nullptr),
-                   InstanceMethod("close", &ZipReaderAPI::close)});
+                   InstanceMethod("close", &ZipReaderAPI::close)}, nullptr);
 
-  constructor = Napi::Persistent(func);
-  constructor.SuppressDestruct();
+  addon_data->ctor_reader = Napi::Persistent(func);
   return exports;
 }
 
@@ -253,7 +247,8 @@ ZipReaderAPI::ZipReaderAPI(const Napi::CallbackInfo& info)
 
 Napi::Object ZipReaderAPI::NewInstance(Napi::Env env, Napi::Value arg) {
   Napi::EscapableHandleScope scope(env);
-  Napi::Object obj = constructor.New({arg});
+  auto addon_data = env.GetInstanceData<AddonData>();
+  auto obj = addon_data->ctor_reader.New({arg});
   return scope.Escape(napi_value(obj)).ToObject();
 }
 

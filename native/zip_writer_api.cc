@@ -76,36 +76,30 @@ Napi::Value CreateZip(const Napi::CallbackInfo& info) {
   return wk->deferred.Promise();
 }
 
-Napi::Object InitWriter(Napi::Env env, Napi::Object exports) {
-  exports.Set(Napi::String::New(env, "create"),
-              Napi::Function::New(env, CreateZip));
-  ZipWriterAPI::Init(env, exports);
-  return exports;
-}
-
 // ZipWriterAPI
 //
 
-Napi::FunctionReference ZipWriterAPI::constructor;
-
-Napi::Object ZipWriterAPI::Init(Napi::Env env, Napi::Object exports) {
+Napi::Object ZipWriterAPI::Init(Napi::Env env, Napi::Object exports, AddonData* addon_data) {
   Napi::HandleScope scope(env);
+
+  exports.Set(Napi::String::New(env, "create"),
+              Napi::Function::New(env, CreateZip));
 
   Napi::Function func =
       DefineClass(env, "ZipWriter",
-                  {InstanceMethod("addDir", &ZipWriterAPI::addDir),
-                   InstanceMethod("addFile", &ZipWriterAPI::addFile),
-                   InstanceMethod("addBuffer", &ZipWriterAPI::addBuffer),
-                   InstanceMethod("close", &ZipWriterAPI::close)});
+                  {ZipWriterAPI::InstanceMethod("addDir", &ZipWriterAPI::addDir),
+                   ZipWriterAPI::InstanceMethod("addFile", &ZipWriterAPI::addFile),
+                   ZipWriterAPI::InstanceMethod("addBuffer", &ZipWriterAPI::addBuffer),
+                   ZipWriterAPI::InstanceMethod("close", &ZipWriterAPI::close)}, nullptr);
 
-  constructor = Napi::Persistent(func);
-  constructor.SuppressDestruct();
+  addon_data->ctor_writer = Napi::Persistent(func);
   return exports;
 }
 
 Napi::Object ZipWriterAPI::NewInstance(Napi::Env env, Napi::Value arg) {
   Napi::EscapableHandleScope scope(env);
-  Napi::Object obj = constructor.New({arg});
+  auto addon_data = env.GetInstanceData<AddonData>();
+  auto obj = addon_data->ctor_writer.New({arg});
   return scope.Escape(napi_value(obj)).ToObject();
 }
 

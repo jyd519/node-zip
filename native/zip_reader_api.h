@@ -6,19 +6,18 @@
 
 #include <thread>
 
+#include "addon.h"
 #include "zip_reader.h"
 
 namespace api {
 
 class ZipReaderAPI : public Napi::ObjectWrap<ZipReaderAPI> {
  public:
-  static Napi::Object Init(Napi::Env env, Napi::Object exports);
+  static Napi::Object Init(Napi::Env env, Napi::Object exports, AddonData* addon_data);
   static Napi::Object NewInstance(Napi::Env env, Napi::Value arg);
 
   ZipReaderAPI(const Napi::CallbackInfo& info);
-
  private:
-  static Napi::FunctionReference constructor;
   Napi::Value setPassword(const Napi::CallbackInfo& info);
   Napi::Value item(const Napi::CallbackInfo& info);
   Napi::Value readFile(const Napi::CallbackInfo& info);
@@ -30,8 +29,5 @@ class ZipReaderAPI : public Napi::ObjectWrap<ZipReaderAPI> {
   std::unique_ptr<ziputil::ZipReader> reader_;
   std::mutex mu_;
 };
-
-Napi::Object InitReader(Napi::Env env, Napi::Object exports);
-
 }  // namespace api
 #endif /* ifndef ZIP_READER_API_H */
